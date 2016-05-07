@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Web Socket Midi Admin</title>
+        <meta name="theme-color" content="#3f51b5">
+        <link rel="icon" type="image/png" href="./favicon-194x194.png">
+        <script src="./jquery.min.js"></script>
+        <script src="./jquery-mobile.min.js"></script>
+        <link rel="stylesheet" href="./font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="./mdl/material.min.css">
+        <script src="./mdl/material.min.js"></script>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        
+        <script src="./wsport.js"></script>
+        
+        <style type="text/css">
+
+        #mutebutton {
+            width: 200px;
+            height: 150px;
+            /*
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            -webkit-tap-highlight-color: transparent;
+            */
+        }
+        #mutebuttonlegend {
+            font-weight: bold;
+            font-size: 50px;
+            text-align: center;
+            color:#fff;
+            line-height:150px;
+        }
+        
+        .on, .mdl-list__item-avatar.on, .mdl-list__item-avatar.material-icons.on {
+            background-color: yellowgreen;
+        }
+        
+        .off, .mdl-list__item-avatar.off, .mdl-list__item-avatar.material-icons.off {
+            background-color: indianred;
+        }
+        
+        /*.disabled {
+            background-color: lightgray;
+            box-shadow: 5px 5px 5px #999;
+        }*/
+        
+        .disable-select {
+            -webkit-user-select: none;  
+            -moz-user-select: none;    
+            -ms-user-select: none;      
+            user-select: none;
+        }
+        
+        .wms-header .mdl-layout__header-row {
+            padding-left: 40px;
+        }
+        .wms-main {
+            flex-shrink: 0;
+        }
+        
+        .wms-aligner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            position:absolute;
+        }
+        
+        .wms-aligner-item {
+            align-self: center;
+        }
+        
+        select { width: 100%; }
+        </style>
+    </head>
+    <body class="disable-select">
+        <div class="wsm-layout mdl-layout mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">
+            <header class="wms-header mdl-layout__header mdl-layout__header--scroll">
+                <div class="mdl-layout__header-row">
+                    <span class="mdl-layout-title">Mute Button Admin</span>
+                </div>
+            </header>
+            <main class="wsm-main mdl-layout__content">
+                
+                    <div class="mdl-grid">
+                        <div class="mdl-cell mdl-cell--4-col">
+                            <h5>MidiPorts</h5>
+                            <select id="midiports"><option value="-1"> - </option></select>
+                        </div>
+                
+                    <div class="mdl-cell mdl-cell--8-col">
+                        <h5><span id="usercount" class="mdl-badge" data-badge="0">Users</span></h5>
+                        <ul id="users" class="mdl-list">
+                        </ul>
+                    </div>
+                </div>
+            </main>
+            
+        </div>
+        
+        <script type="text/javascript">
+            var disabled = true;
+            var connected = false;
+            var channels = '';
+            for (i = 0; i < 16; i++) {
+                channels += '<option value="' + i + '">Channel ' + i +'</option>';
+            }
+            
+            var controls = '';
+            for (i = 1; i < 5; i++) {
+                controls += '<option value="' + (i + 15)  + '">Button ' + i +'</option>';
+            }
+            
+            $("#midiports").change(function() {
+                if (connected) {
+                    msg = { type: 'admin', command: 'midiport', midiport: $("#midiports").val() };
+                    connection.send(JSON.stringify(msg));
+                }
+            });
+            
+            
+            
+            $( '#mutebutton' )
+            .on('vmousedown', function() {
+                if (connected) {
+                    setOff();
+                    connection.send('MUTE ME');  
+                }
+                else {
+                    setDisabled();
+                }
+            });
+            $( '#mutebutton' )
+            .on('vmouseup', function() {
+                if (connected) {
+                    setOn();
+                    connection.send('UNMUTE ME');
+                }
+                else {
+                    setDisabled();
+                }
+            });
+            var connection = new WebSocket('ws://' + window.location.hostname + ':' + wsport);
+            
+            connection.onopen = function () {
+                connected = true;
+                msg = { type: 'admin', command: 'connect' };
+                connection.send(JSON.stringify(msg)); // Send the message 'Ping' to the server
+            };
+            
+            connection.onerror = function (error) {
+                connected = false;
+                console.log('WebSocket Error ' + error);
+                alert(error);
+            };
+            
+            connection.onmessage = function (e) {
+                console.log('Server: ' + e.data);
+                msg = JSON.parse(e.data);
+                if (msg.midiports) {
+                    clearMidiPorts();
+                    $.each(msg.midiports,function(key, value)  {
+                        $('#midiports').append('<option value="' + value + '">' + value + '</option>');
+                    });
+                    if (msg.midiport) {
+                        $("#midiports").val(msg.midiport);
+                    }
+                }
+                if (msg.users) {
+                    clearUsers();
+                    $.each(msg.users,function(key, value)  {
+                        $('#users').append('<li class="mdl-list__item mdl-list__item--two-line" data-peer="' + value.peer + '">\
+                        <span class="mdl-list__item-primary-content">\
+                        <i class="material-icons mdl-list__item-avatar">person</i>\
+                        <span>' + value.name + '</span>\
+                        <span class="mdl-list__item-sub-title">' + value.peer + '</span></span>\
+                        <span class="mdl-list__item-secondary-content">\
+                        <select class="midi-channel" data-peer="' + value.peer + '"><option value="-1"> - </option>' + channels + '</select><br>\
+                        <select class="midi-control" data-peer="' + value.peer + '"><option value="-1"> - </option>' + controls + '</select></span></li>\
+                        <li ><hr></li>');
+                        $("select.midi-channel[data-peer='" + value.peer + "']").val(value.channel);
+                        $("select.midi-control[data-peer='" + value.peer + "']").val(value.control);
+                    });
+                    $("#usercount").attr('data-badge',Object.keys(msg.users).length + ''); 
+                    $(".midi-channel").change(function() {
+                        if (connected) {
+                            msg = { type: 'admin', command: 'channel', channel: $(this).val(), peer: $(this).data('peer') };
+                            connection.send(JSON.stringify(msg));
+                        }
+                    });
+                    
+                    $(".midi-control").change(function() {
+                        if (connected) {
+                            msg = { type: 'admin', command: 'control', control: $(this).val(), peer: $(this).data('peer') };
+                            connection.send(JSON.stringify(msg));
+                        }
+                    });
+                }
+                if (msg.user && msg.state) {
+                    console.log(msg);
+                    if (msg.state == 'muteon') {
+                        $("#users > li[data-peer='" + msg.user.peer + "'] i.mdl-list__item-avatar").toggleClass( 'off', true );
+                        $("#users > li[data-peer='" + msg.user.peer + "'] i.mdl-list__item-avatar").toggleClass( 'on', false );
+                    }
+                    if (msg.state == 'muteoff') {
+                        $("#users > li[data-peer='" + msg.user.peer + "'] i.mdl-list__item-avatar").toggleClass( 'on', true );
+                        $("#users > li[data-peer='" + msg.user.peer + "'] i.mdl-list__item-avatar").toggleClass( 'off', false );
+                    }
+                }
+            };
+            
+            connection.onclose = function (e) {
+                connected = false;
+                clearMidiPorts();
+                clearUsers();
+                console.log('Server: ' + e.data);
+            };
+            
+            function clearMidiPorts() {
+                $('#midiports').find('option').remove().end().append('<option value="-1"> - </option>');
+            }
+            
+            function clearUsers() {
+                $("#usercount").attr('data-badge','0'); 
+                $('#users').find('li').remove();
+            }
+            
+        </script>
+    </body>
+</html>
