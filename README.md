@@ -42,5 +42,5 @@ Open ```http://<ip>:<port>``` in your browser.
 ![](https://mabe.at/byomb/mute-button_off.png)
 ###Admin Interface
 Open ```http://<ip>:<port>/admin.html``` in your browser.  
-
+Select MidiPort and assign individual channel and button to every mute button client.  
 ![](https://mabe.at/byomb/admin-interface.png)
