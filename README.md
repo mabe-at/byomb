@@ -36,9 +36,11 @@ HTML clients use Material Design Lite and WebSockets.
 Clients are successfully tested on recent iOS (Chrome/Firefox/Safari), recent Android (Chrome), Firefox OS 2.2, OS X/Windows (recent browser).
 ###Mute Button
 Open ```http://<ip>:<port>``` in your browser.  
+
 ![](https://mabe.at/byomb/mute-button_connect.png)
 ![](https://mabe.at/byomb/mute-button_on.png)
 ![](https://mabe.at/byomb/mute-button_off.png)
 ###Admin Interface
 Open ```http://<ip>:<port>/admin.html``` in your browser.  
+
 ![](https://mabe.at/byomb/admin-interface.png)
