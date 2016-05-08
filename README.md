@@ -10,7 +10,7 @@ The idea behind this project is, that every podcast guest can use his/her smartp
 
 ##Server
 
-Start server with ```python MuteServer.py```
+Start server with ```cd SERVER/ ; python MuteServer.py```
 
 ```
 usage: MuteServer.py [-h] [-p port] [-w wsport] [--rtmidi]
