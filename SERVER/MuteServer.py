@@ -7,6 +7,7 @@ import getopt
 import json
 import mido
 import socket
+import os
 
 from twisted.python import log
 from twisted.internet import reactor
@@ -378,8 +379,13 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, customHandler)
     
     reactor.listenTCP(WSPORT, factory)
+
+    webdir_path = os.path.join(os.getcwd(), os.path.dirname(__file__), "../CLIENT")
+
+    if not os.path.exists(webdir_path):
+      print 'client directory not found: {}'.format(webdir_path)
     
-    webdir = File("../CLIENT")
+    webdir = File(webdir_path)
     webdir.putChild('wsport.js', WSPortJs())
     web = Site(webdir)
     reactor.listenTCP(WEBPORT, web)
