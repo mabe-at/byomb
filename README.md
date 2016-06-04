@@ -31,6 +31,13 @@ OS X/iOS devices can connect to client-app (mute button and admin interface) wit
 - Zeroconf (https://pypi.python.org/pypi/zeroconf)  
 - ... and probably others
 
+### Setup
+```
+$ cd byomb
+$ virtualenv venv --python=python2
+$ pip install --requirement SERVER/requirements.txt
+```
+
 ##Clients
 HTML clients use Material Design Lite and WebSockets.
 Clients are successfully tested on recent iOS (Chrome/Firefox/Safari), recent Android (Chrome), Firefox OS 2.2, OS X/Windows (recent browser).
