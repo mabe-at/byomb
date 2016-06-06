@@ -43,6 +43,7 @@ HTML clients use Material Design Lite and WebSockets.
 Clients are successfully tested on recent iOS (Chrome/Firefox/Safari), recent Android (Chrome), Firefox OS 2.2, OS X/Windows (recent browser).
 ###Mute Button
 Open ```http://<ip>:<port>``` in your browser.  
+After entering your name and connecting to the server, click the padlock icon in the top right edge for keeping your device awake (should work on iOS and Adnroid).   
 
 ![](https://mabe.at/byomb/mute-button_connect.png)
 ![](https://mabe.at/byomb/mute-button_on.png)
