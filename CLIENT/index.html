@@ -15,7 +15,7 @@
         <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon-180x180.png">
         <link rel="stylesheet" href="./font-awesome/css/font-awesome.min.css">
         <link rel="stylesheet" href="./mdl/material.min.css">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="./material-icons/material-icons.css">
         
         <script src="./jquery.min.js"></script>
         <script src="./jquery-mobile.min.js"></script>
@@ -24,6 +24,7 @@
         <script src="./polyfill/dialog-polyfill.js"></script>
         <link rel="stylesheet" type="text/css" href="./polyfill/dialog-polyfill.css">
         
+        <script src="./nosleep/NoSleep.min.js"></script>
         
         <script src="./wsport.js"></script>
         
@@ -95,6 +96,10 @@
             <header class="wms-header mdl-layout__header mdl-layout__header--scroll">
                 <div class="mdl-layout__header-row">
                     <span class="mdl-layout-title">Mute Button</span>
+                    <div class="mdl-layout-spacer"></div>
+                    <button id="wake-lock" class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">lock_open</i>
+                    </button>
                 </div>
             </header>
             <main class="wsm-main mdl-layout__content">
@@ -135,6 +140,9 @@
         
         <script type="text/javascript">
             $(window).load(function() {
+            var noSleep = new NoSleep();
+            var wakeLockEnabled = false;
+            
             var disabled = true;
             var connected = false;
             
@@ -163,7 +171,9 @@
             });
             
             $( '#connectbutton' ).on('vmouseup', function() {
-                connect();
+                if (username.length > 2) {
+                    connect();
+                }
             });
             
             $( '#mutebutton' )
@@ -189,6 +199,18 @@
                 }
             });
             
+            $( '#wake-lock' )
+            .on('vmousedown', function() {
+                 if (!wakeLockEnabled) {
+                    noSleep.enable(); // keep the screen on!
+                    wakeLockEnabled = true;
+                    $( '#wake-lock i.material-icons' ).text('lock');
+                } else {
+                    noSleep.disable(); // let the screen turn off.
+                    wakeLockEnabled = false;
+                    $( '#wake-lock i.material-icons' ).text('lock_open');
+                }
+            });
             
             function connect() {
                 connection = new WebSocket('ws://' + window.location.hostname + ':' + wsport);
