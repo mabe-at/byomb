@@ -6,7 +6,7 @@ netifaces==0.10.4
 six==1.10.0
 Twisted==22.1.0
 txaio==2.5.1
-wheel==0.24.0
+wheel==0.38.1
 zeroconf==0.17.5
 zope.interface==4.1.3
 
